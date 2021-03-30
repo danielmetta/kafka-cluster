@@ -12,7 +12,6 @@ services:
       ZOOKEEPER_INIT_LIMIT: 5
       ZOOKEEPER_SYNC_LIMIT: 2
       ZOOKEEPER_SERVERS: 172.31.6.147:2888:3888;172.31.8.126:2888:3888
-    network_mode: host
     extra_hosts:
       - "moby:127.0.0.1"
 
@@ -20,7 +19,6 @@ services:
     image: confluentinc/cp-kafka:latest
     ports:
       - "9092:9092"
-    network_mode: host
     depends_on:
       - zookeeper-1
     environment:
