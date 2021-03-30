@@ -9,7 +9,7 @@ services:
     environment:
       ZOO_MY_ID: 2
       ZOO_PORT: 2182
-      ZOO_SERVERS: server.1=18.229.15.51:2888:3888 server.2=zoo2:2888:3888
+      ZOO_SERVERS: server.1=18.229.15.51:2888:3888 server.2=localhost:2888:3888
     volumes:
       - ./zk-multiple-kafka-multiple/zoo2/data:/data
       - ./zk-multiple-kafka-multiple/zoo2/datalog:/datalog
@@ -23,7 +23,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka2:19093,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
-      KAFKA_ZOOKEEPER_CONNECT: "18.229.15.51:2181,zoo2:2182"
+      KAFKA_ZOOKEEPER_CONNECT: "18.229.15.51:2181,localhost:2182"
       KAFKA_BROKER_ID: 2
       KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
     volumes:
