@@ -1,27 +1,32 @@
----
-version: '2'
-services:
-  zookeeper-2:
-    image: confluentinc/cp-zookeeper:latest
-    environment:
-      ZOOKEEPER_SERVER_ID: 2
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-      ZOOKEEPER_INIT_LIMIT: 5
-      ZOOKEEPER_SYNC_LIMIT: 2
-      ZOOKEEPER_SERVERS: 172.31.6.147:2888:3888;localhost:2888:3888
-    network_mode: host
-    extra_hosts:
-      - "moby:127.0.0.1"
+version: '2.1'
 
-  kafka-2:
-    image: confluentinc/cp-kafka:latest
-    network_mode: host
-    depends_on:
-      - zookeeper-2
+services:
+  zoo2:
+    image: zookeeper:3.4.9
+    hostname: zoo2
+    ports:
+      - "2182:2182"
     environment:
+      ZOO_MY_ID: 2
+      ZOO_PORT: 2182
+      ZOO_SERVERS: server.1=18.229.15.51:2888:3888 server.2=zoo2:2888:3888
+    volumes:
+      - ./zk-multiple-kafka-multiple/zoo2/data:/data
+      - ./zk-multiple-kafka-multiple/zoo2/datalog:/datalog
+
+  kafka2:
+    image: confluentinc/cp-kafka:5.5.1
+    hostname: kafka2
+    ports:
+      - "9093:9093"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka2:19093,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "18.229.15.51:2181,zoo2:2182"
       KAFKA_BROKER_ID: 2
-      KAFKA_ZOOKEEPER_CONNECT: 172.31.6.147:2181,localhost:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-    extra_hosts:
-      - "moby:127.0.0.1"
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+    volumes:
+      - ./zk-multiple-kafka-multiple/kafka2/data:/var/lib/kafka/data
+    depends_on:
+      - zoo2
